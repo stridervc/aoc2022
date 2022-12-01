@@ -5,13 +5,15 @@ module Day01
 import Data.List (sort)
 import Data.List.Split (splitOn)
 
-parse :: String -> [[Int]]
+type Parsed = [[Int]]
+
+parse :: String -> Parsed
 parse input = map (map read) $ splitOn [""] $ lines input
 
-part1 :: [[Int]] -> Int
+part1 :: Parsed -> Int
 part1 = maximum . map sum
 
-part2 :: [[Int]] -> Int
+part2 :: Parsed -> Int
 part2 inputs = sum $ take 3 $ reverse $ sort $ map sum inputs
 
 solve :: String -> IO ()
