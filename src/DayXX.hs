@@ -11,13 +11,8 @@ import Parsers
 type Parsed = String
 
 -- | Do nothing useful for now
-parseAll :: Parser Parsed
-parseAll = P.many P.anyChar
-
-parse :: String -> Parsed
-parse input = do
-  let Right parsed = P.parse parseAll "(input)" input
-  parsed
+parse :: Parser Parsed
+parse = P.many P.anyChar
 
 part1 :: Parsed -> String
 part1 parsed = "Not yet implemented"
@@ -29,4 +24,4 @@ solve :: String -> IO ()
 solve input = do
   print $ part1 parsed
   print $ part2 parsed
-  where parsed  = parse input
+  where Right parsed  = P.parse parse "(input)" input

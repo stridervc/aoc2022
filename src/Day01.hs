@@ -13,21 +13,16 @@ import Data.List (sort)
 type Parsed = [[Int]]
 
 -- | parse newline terminated rows of Ints until we can't
-parseGroup :: Parser [Int]
-parseGroup = do
+parseInts :: Parser [Int]
+parseInts = do
   P.many1 $ do
     num <- parseInt
     P.newline
     return num
 
 -- | groups are separated by newlines (or EOF)
-parseAll :: Parser Parsed
-parseAll = P.sepBy parseGroup P.newline
-
-parse :: String -> Parsed
-parse input = do
-  let Right parsed = P.parse parseAll "(input)" input
-  parsed
+parse :: Parser Parsed
+parse = P.sepBy parseInts P.newline
 
 part1 :: Parsed -> Int
 part1 = maximum . map sum
@@ -39,4 +34,4 @@ solve :: String -> IO ()
 solve input = do
   print $ part1 parsed
   print $ part2 parsed
-  where parsed  = parse input
+  where Right parsed  = P.parse parse "(input)" input
