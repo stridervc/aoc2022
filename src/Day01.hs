@@ -6,9 +6,9 @@ import qualified Text.Parsec as P
 import Text.Parsec.String (Parser)
 import Text.Parsec ((<|>))
 
-import Data.List (sort)
-
 import Parsers
+
+import Data.List (sort)
 
 type Parsed = [[Int]]
 
@@ -26,9 +26,8 @@ parseAll = P.sepBy parseGroup P.newline
 
 parse :: String -> Parsed
 parse input = do
-  case P.parse parseAll "(input)" input of
-    Left e  -> error $ show e
-    Right p -> p
+  let Right parsed = P.parse parseAll "(input)" input
+  parsed
 
 part1 :: Parsed -> Int
 part1 = maximum . map sum

@@ -16,9 +16,8 @@ parseAll = P.many P.anyChar
 
 parse :: String -> Parsed
 parse input = do
-  case P.parse parseAll "(input)" input of
-    Left e  -> error $ show e
-    Right p -> p
+  let Right parsed = P.parse parseAll "(input)" input
+  parsed
 
 part1 :: Parsed -> String
 part1 parsed = "Not yet implemented"
