@@ -1,4 +1,4 @@
-module Day02
+module DayXX
   ( solve
   ) where
 
