@@ -26,6 +26,7 @@ library:
   source-dirs: src
   dependencies:
   - split
+  - parsec
 
 executables:
   aoc2022:
