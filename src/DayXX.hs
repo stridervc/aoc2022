@@ -10,7 +10,6 @@ import Parsers
 
 type Parsed = String
 
--- | Do nothing useful for now
 parse :: Parser Parsed
 parse = P.many P.anyChar
 
