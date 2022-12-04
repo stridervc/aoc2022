@@ -8,22 +8,51 @@ import Text.Parsec ((<|>))
 
 import Parsers
 
-type Parsed = String
+type Assignment = (Int, Int)
+type Pair       = (Assignment, Assignment)
+
+type Parsed = [Pair]
+
+parseAssignment :: Parser Assignment
+parseAssignment = do
+  i1 <- parseInt
+  P.char '-'
+  i2 <- parseInt
+  return (i1, i2)
+
+parseLine :: Parser Pair
+parseLine = do
+  a1 <- parseAssignment
+  P.char ','
+  a2 <- parseAssignment
+  P.newline
+  return (a1, a2)
 
 parse :: Parser Parsed
-parse = P.many P.anyChar
+parse = P.many parseLine
 
-part1 :: Parsed -> String
-part1 parsed = "Not yet implemented"
+fullyContained :: Assignment -> Assignment -> Bool
+fullyContained (b1, e1) (b2, e2)
+  | b2 >= b1 && e2 <= e1  = True
+  | b1 >= b2 && e1 <= e2  = True
+  | otherwise             = False
 
-part2 :: Parsed -> String
-part2 parsed = "Not yet implemented"
+overlaps :: Assignment -> Assignment -> Bool
+overlaps (b1, e1) (b2, e2)
+  | b2 >= b1 && b2 <= e1  = True
+  | b1 >= b2 && b1 <= e2  = True
+  | e1 >= b2 && e1 <= e2  = True
+  | e2 >= b1 && e2 <= e1  = True
+  | otherwise             = False
+
+part1 :: Parsed -> Int
+part1 parsed = length $ filter id $ map (uncurry fullyContained) parsed
+
+part2 :: Parsed -> Int
+part2 parsed = length $ filter id $ map (uncurry overlaps) parsed
 
 solve :: String -> IO ()
 solve input = do
-  print $ P.parse parse "(input)" input
-  {-
   print $ part1 parsed
   print $ part2 parsed
   where Right parsed  = P.parse parse "(input)" input
-  -}
