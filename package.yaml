@@ -39,6 +39,7 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - aoc2022
+    - unix
     - containers
 
 tests:

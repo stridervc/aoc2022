@@ -30,6 +30,7 @@ library
       Day03
       Day04
       Day05
+      Day06
       DayXX
       Parsers
   other-modules:
@@ -54,6 +55,7 @@ executable aoc2022
       aoc2022
     , base >=4.7 && <5
     , containers
+    , unix
   default-language: Haskell2010
 
 test-suite aoc2022-test
