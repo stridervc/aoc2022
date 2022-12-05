@@ -27,6 +27,7 @@ library:
   dependencies:
   - split
   - parsec
+  - containers
 
 executables:
   aoc2022:
