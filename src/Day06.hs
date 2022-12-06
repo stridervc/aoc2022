@@ -15,13 +15,12 @@ type Parsed = String
 parse :: Parser Parsed
 parse = P.many P.anyChar
 
-distinct :: String -> Bool
-distinct str = length str == length (nub str)
-
 subroutine :: Int -> Int -> String -> Int
 subroutine n count str
-  | distinct (take n str) = count + n
-  | otherwise             = subroutine n (count+1) (tail str)
+  | distinct  = count + n
+  | otherwise = subroutine n (count+1) (tail str)
+  where str'      = take n str
+        distinct  = length str' == length (nub str')
 
 part1 :: Parsed -> Int
 part1 = subroutine 4 0
