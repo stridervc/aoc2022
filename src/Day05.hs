@@ -23,17 +23,16 @@ type Rule     = (Count, StackNo, StackNo)
 type Parsed = (Stacks, [Rule])
 
 parseMaybeCrate :: Parser (Maybe Crate)
-parseMaybeCrate = do
-  P.choice
-    [ do
-      P.char '['
-      c <- P.anyChar
-      P.char ']'
-      return $ Just c
-    , do
-      P.count 3 P.space
-      return Nothing
-    ]
+parseMaybeCrate = P.choice
+  [ do
+    P.char '['
+    c <- P.anyChar
+    P.char ']'
+    return $ Just c
+  , do
+    P.count 3 P.space
+    return Nothing
+  ]
 
 parseCrateRow :: Parser [Maybe Crate]
 parseCrateRow = do
