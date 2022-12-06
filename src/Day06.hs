@@ -6,6 +6,8 @@ import qualified Text.Parsec as P
 import Text.Parsec.String (Parser)
 import Text.Parsec ((<|>))
 
+import Data.List (nub)
+
 import Parsers
 
 type Parsed = String
@@ -13,17 +15,22 @@ type Parsed = String
 parse :: Parser Parsed
 parse = P.many P.anyChar
 
-part1 :: Parsed -> String
-part1 parsed = "Not yet implemented"
+distinct :: String -> Bool
+distinct str = length str == length (nub str)
 
-part2 :: Parsed -> String
-part2 parsed = "Not yet implemented"
+subroutine :: Int -> Int -> String -> Int
+subroutine n count str
+  | distinct (take n str) = count + n
+  | otherwise             = subroutine n (count+1) (tail str)
+
+part1 :: Parsed -> Int
+part1 = subroutine 4 0
+
+part2 :: Parsed -> Int
+part2 = subroutine 14 0
 
 solve :: String -> IO ()
 solve input = do
-  print $ P.parse parse "(input)" input
-  {-
   print $ part1 parsed
   print $ part2 parsed
   where Right parsed  = P.parse parse "(input)" input
-  -}
