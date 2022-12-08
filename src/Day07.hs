@@ -27,12 +27,12 @@ filename :: Entry -> FileName
 filename (File (name, _))   = name
 filename (Directory name _) = name
 
--- | Non recursively find an entry by file name
+-- | find an entry by file name in this directory (don't go deeper)
 findEntry :: FileName -> Entry -> Maybe Entry
 findEntry name entry@(File (filename, _)) = if name == filename then Just entry else Nothing
 findEntry name (Directory _ entries)      = find (\e -> filename e == name) entries
 
--- | insert or replace entry in a Directory
+-- | insert or replace entry in a directory
 insertEntry :: Entry -> Entry -> Entry
 insertEntry _ (File _)                      = error "Can't insert into a file"
 insertEntry entry (Directory dname entries) = Directory dname (entry : filter (\e -> filename e /= filename entry) entries)
@@ -44,7 +44,7 @@ addEntry entry ps tree  = case findEntry (last ps) tree of
   Nothing -> error $ "Error in addEntry, can't find " <> last ps
   Just e  -> insertEntry (addEntry entry (init ps) e) tree
 
--- | get file size, or sum of size of entries for directory
+-- | get file size, or recursive size of directory
 fileSize :: Entry -> Int
 fileSize (File (_, size))       = size
 fileSize (Directory _ entries)  = sum $ map fileSize entries
@@ -54,7 +54,7 @@ parseInt = do
   num <- P.many1 P.digit
   return $ read num
 
--- | parse directories and files, and add them to our tree
+-- | parse directories and files, add them to our tree
 parseEntry :: Parser ()
 parseEntry = P.choice
   [ do
@@ -73,18 +73,17 @@ parseEntry = P.choice
 -- | If we find a 'cd' command, update the current path
 -- | Ignore 'ls' commands, we'll catch the file listing later
 parseCommand :: Parser ()
-parseCommand = do
-  P.string "$ "
-  P.choice  [ do
-              P.string "cd "
-              dir <- P.manyTill P.anyChar P.newline
-              (path, tree) <- P.getState
-              P.putState (changePath dir path, tree)
-            , do
-              P.string "ls"
-              P.newline
-              return ()
-            ]
+parseCommand = P.string "$ " >> P.choice
+  [ do
+    P.string "cd "
+    dir <- P.manyTill P.anyChar P.newline
+    (path, tree) <- P.getState
+    P.putState (changePath dir path, tree)
+  , do
+    P.string "ls"
+    P.newline
+    return ()
+  ]
 
 parse :: Parser ()
 parse = do
