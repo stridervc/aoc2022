@@ -12,50 +12,49 @@ import qualified Data.Set as S
 import Parsers
 
 type Coord  = (Int, Int)
-type Rope   = (Coord, Coord)    -- ^ (Head, Tail)
+type Rope   = [Coord]       -- ^ Leading knot is at head of rope
 type Motion = (Char, Int)
 type Parsed = [Motion]
 
 type TailCoords = S.Set Coord
 type RopeSet    = (Rope, TailCoords)
 
-startRope :: Rope
-startRope = ((0, 0), (0, 0))
+ropeSetOfLength :: Int -> RopeSet
+ropeSetOfLength i = (replicate i (0,0), S.singleton (0, 0))
 
-startRopeSet :: RopeSet
-startRopeSet = (startRope, S.singleton (0, 0))
-
-{-
-touching :: Rope -> Bool
-touching (h, t) = dx <= 1 && dy <= 1
-  where dx  = abs $ fst h - fst t
-        dy  = abs $ snd h - snd t
--}
-
+-- | follower catches up to leader (if necessary)
+-- | do the same for the rest of the knots
+-- | if follower is the last knot, add coords to set
 catchup :: RopeSet -> RopeSet
-catchup (r@(h, t), set)
-  | (abs dx <= 1) && (abs dy <= 1)  = (r, set)
-  | otherwise                       = ((h, (tx+cx, ty+cy)), S.insert (tx+cx, ty+cy) set)
-  where hx  = fst h
-        hy  = snd h
-        tx  = fst t
-        ty  = snd t
-        dx  = hx - tx
-        dy  = hy - ty
-        cy  | dy > 0    = 1
-            | dy < 0    = -1
-            | otherwise = 0
-        cx  | dx > 0    = 1
-            | dx < 0    = -1
-            | otherwise = 0
+catchup (l:f:ks, set)
+  | abs dx <= 1 && abs dy <=1 = let (ks', set') = catchup (f:ks, set) in (l:f:tail ks', set')
+  | otherwise = (l:f':tail ks', set'')
+  where lx          = fst l
+        ly          = snd l
+        fx          = fst f
+        fy          = snd f
+        dx          = lx - fx
+        dy          = ly - fy
+        cy          | dy > 0    = 1
+                    | dy < 0    = -1
+                    | otherwise = 0
+        cx          | dx > 0    = 1
+                    | dx < 0    = -1
+                    | otherwise = 0
+        f'          = (fx+cx, fy+cy)
+        (ks', set') = catchup (f':ks, set)
+        set''       | null ks   = S.insert f' set'
+                    | otherwise = set'
+catchup rs  = rs
 
+-- | move leader, have followers catch up
 move :: Motion -> RopeSet -> RopeSet
-move (_, 0) r               = r
-move ('U', c) (((hx, hy), t), set) = move ('U', c-1) $ catchup (((hx, hy-1), t), set)
-move ('D', c) (((hx, hy), t), set) = move ('D', c-1) $ catchup (((hx, hy+1), t), set)
-move ('L', c) (((hx, hy), t), set) = move ('L', c-1) $ catchup (((hx-1, hy), t), set)
-move ('R', c) (((hx, hy), t), set) = move ('R', c-1) $ catchup (((hx+1, hy), t), set)
-move _ _                    = error "Unexpected motion in move"
+move (_, 0) rs                    = rs
+move ('U', c) ((lx, ly):ks, set)  = move ('U', c-1) $ catchup ((lx, ly-1):ks, set)
+move ('D', c) ((lx, ly):ks, set)  = move ('D', c-1) $ catchup ((lx, ly+1):ks, set)
+move ('L', c) ((lx, ly):ks, set)  = move ('L', c-1) $ catchup ((lx-1, ly):ks, set)
+move ('R', c) ((lx, ly):ks, set)  = move ('R', c-1) $ catchup ((lx+1, ly):ks, set)
+move _ _                          = error "Unexpected motion in move"
 
 parseMotion :: Parser Motion
 parseMotion = do
@@ -68,13 +67,13 @@ parseMotion = do
 parse :: Parser Parsed
 parse = P.many parseMotion
 
--- 5695
 part1 :: Parsed -> Int
 part1 parsed = S.size $ snd endRopeSet
-  where endRopeSet = foldl (flip move) startRopeSet parsed
+  where endRopeSet = foldl (flip move) (ropeSetOfLength 2) parsed
 
-part2 :: Parsed -> String
-part2 parsed = "Not yet implemented"
+part2 :: Parsed -> Int
+part2 parsed = S.size $ snd endRopeSet
+  where endRopeSet = foldl (flip move) (ropeSetOfLength 10) parsed
 
 solve :: String -> IO ()
 solve input = do
