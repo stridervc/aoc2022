@@ -53,8 +53,7 @@ visibleTrees :: Height -> [Height] -> Int
 visibleTrees _ [] = 0
 visibleTrees h (t:ts)
   | t < h     = 1 + visibleTrees h ts
-  | t >= h    = 1
-  | otherwise = 0
+  | otherwise = 1
 
 scenicScore :: Forest -> Coord -> Int
 scenicScore f (x,y) = left * right * up * down
