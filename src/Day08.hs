@@ -60,14 +60,10 @@ scenicScore f (x,y) = left * right * up * down
   where height  = heightAt f (x,y)
         maxx    = maxX f
         maxy    = maxY f
-        left    | x == 0    = 0
-                | otherwise = visibleTrees height $ reverse [ heightAt f (x',y) | x' <- [0..x-1] ]
-        right   | x == maxx = 0
-                | otherwise = visibleTrees height [ heightAt f (x',y) | x' <- [x+1..maxx] ]
-        up      | y == 0    = 0
-                | otherwise = visibleTrees height $ reverse [ heightAt f (x,y') | y' <- [0..y-1] ]
-        down    | y == maxy = 0
-                | otherwise = visibleTrees height [ heightAt f (x,y') | y' <- [y+1..maxy] ]
+        left    = visibleTrees height $ reverse [ heightAt f (x',y) | x' <- [0..x-1] ]
+        right   = visibleTrees height [ heightAt f (x',y) | x' <- [x+1..maxx] ]
+        up      = visibleTrees height $ reverse [ heightAt f (x,y') | y' <- [0..y-1] ]
+        down    = visibleTrees height [ heightAt f (x,y') | y' <- [y+1..maxy] ]
 
 part1 :: Forest -> Int
 part1 forest = length $ filter id [ isVisible forest (x,y) | x <- [0..maxX forest], y <- [0..maxY forest] ]
