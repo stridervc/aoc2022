@@ -19,6 +19,17 @@ type Parsed = [Motion]
 type TailCoords = S.Set Coord
 type RopeSet    = (Rope, TailCoords)
 
+parseMotion :: Parser Motion
+parseMotion = do
+  dir <- P.anyChar
+  P.space
+  count <- parseInt
+  P.newline
+  return (dir, count)
+
+parse :: Parser Parsed
+parse = P.many parseMotion
+
 ropeSetOfLength :: Int -> RopeSet
 ropeSetOfLength i = (replicate i (0,0), S.singleton (0, 0))
 
@@ -55,17 +66,6 @@ move ('D', c) ((lx, ly):ks, set)  = move ('D', c-1) $ catchup ((lx, ly+1):ks, se
 move ('L', c) ((lx, ly):ks, set)  = move ('L', c-1) $ catchup ((lx-1, ly):ks, set)
 move ('R', c) ((lx, ly):ks, set)  = move ('R', c-1) $ catchup ((lx+1, ly):ks, set)
 move _ _                          = error "Unexpected motion in move"
-
-parseMotion :: Parser Motion
-parseMotion = do
-  dir <- P.anyChar
-  P.space
-  count <- parseInt
-  P.newline
-  return (dir, count)
-
-parse :: Parser Parsed
-parse = P.many parseMotion
 
 part1 :: Parsed -> Int
 part1 parsed = S.size $ snd endRopeSet
