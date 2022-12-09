@@ -48,7 +48,7 @@ isVisible f (x,y)
 
 -- | get number of trees in list that are visible from reference height
 -- | can't see past a tree that's the same or higher than reference height
--- | tricker than just a takeWhile, because we need to count the tree that stops our view
+-- | trickier than a takeWhile, because we need to count the tree that stops our view
 visibleTrees :: Height -> [Height] -> Int
 visibleTrees _ [] = 0
 visibleTrees h (t:ts)
