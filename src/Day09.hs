@@ -28,7 +28,7 @@ ropeSetOfLength i = (replicate i (0,0), S.singleton (0, 0))
 catchup :: RopeSet -> RopeSet
 catchup (l:f:ks, set)
   | abs dx <= 1 && abs dy <= 1  = let (ks', set') = catchup (f:ks, set) in (l:f:tail ks', set')
-  | otherwise = (l:f':tail ks', set'')
+  | otherwise                   = (l:f':tail ks', set'')
   where lx          = fst l
         ly          = snd l
         fx          = fst f
