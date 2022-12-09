@@ -32,13 +32,10 @@ touching (h, t) = dx <= 1 && dy <= 1
         dy  = abs $ snd h - snd t
 -}
 
--- TODO only first and last guards are needed here
 catchup :: RopeSet -> RopeSet
 catchup (r@(h, t), set)
   | (abs dx <= 1) && (abs dy <= 1)  = (r, set)
-  | dx == 0 && dy /= 0  = ((h, (tx, ty+cy)), S.insert (tx, ty+cy) set)
-  | dx /= 0 &&  dy == 0 = ((h, (tx+cx, ty)), S.insert (tx+cx, ty) set)
-  | otherwise           = ((h, (tx+cx, ty+cy)), S.insert (tx+cx, ty+cy) set)
+  | otherwise                       = ((h, (tx+cx, ty+cy)), S.insert (tx+cx, ty+cy) set)
   where hx  = fst h
         hy  = snd h
         tx  = fst t
