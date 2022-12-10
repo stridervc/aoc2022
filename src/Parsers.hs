@@ -5,8 +5,16 @@ module Parsers
 import qualified Text.Parsec as P
 import Text.Parsec.String (Parser)
 
--- TODO : support negative numbers
-parseInt :: Parser Int
-parseInt = do
+parseNegInt :: Parser Int
+parseNegInt = do
+  P.char '-'
   num <- P.many1 P.digit
-  return $ read num
+  return $ read num * (-1)
+
+parseInt :: Parser Int
+parseInt = P.choice
+  [ parseNegInt
+  , do
+    num <- P.many1 P.digit
+    return $ read num
+  ]
