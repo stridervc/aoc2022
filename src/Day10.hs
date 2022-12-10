@@ -6,6 +6,7 @@ import qualified Text.Parsec as P
 import Text.Parsec.String (Parser)
 import Text.Parsec ((<|>))
 
+import Helpers
 import Parsers
 
 data Instr    = Noop | AddX Int deriving (Eq, Show)
@@ -43,7 +44,7 @@ regAtCycle (instr:instrs) (cc, cr) cycle
 
 pixelAtCycle :: [Instr] -> CPU -> Cycle -> Char
 pixelAtCycle instrs cpu cycle
-  | scanpos >= reg-1 && scanpos <= reg+1  = '#'
+  | scanpos >= reg-1 && scanpos <= reg+1  = pixel
   | otherwise                             = ' '
   where scanpos = (cycle-1) `mod` 40
         reg     = regAtCycle instrs cpu cycle
