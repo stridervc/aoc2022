@@ -7,6 +7,7 @@ module Parsers
 
 import qualified Text.Parsec as P
 import qualified Text.Parsec.String as SP
+
 import Text.Parsec.String (Parser)
 
 inputfile :: String -> FilePath
@@ -18,6 +19,7 @@ testfile day = concat [ "./inputs/test", day, ".txt" ]
 parseFile :: Bool -> String -> Parser a -> IO a
 parseFile real day parser = do
   let filename  = if real then inputfile day else testfile day
+
   parse <- SP.parseFromFile parser filename
   case parse of
     Left e        -> error $ show e
