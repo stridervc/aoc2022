@@ -38,7 +38,7 @@ solveSingle day = do
       Just solver -> readFile inputfile >>= solver >> putStrLn ""
       Nothing     -> putStrLn "Not yet implemented"
   else putStrLn "No input file"
-  where inputfile = concat ["./inputs/test", day, ".txt"]
+  where inputfile = concat ["./inputs/input", day, ".txt"]
 
 main :: IO ()
 main = do
