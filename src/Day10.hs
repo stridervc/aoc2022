@@ -57,7 +57,7 @@ part2 instrs  = [ take 40 (drop x pixels) | x <- [0,40..200] ]
   where pixels = [ pixelAtCycle instrs (1,1) c | c <- [1..] ]
 
 solve :: String -> IO ()
-solve input = do
+solve day = do
+  parsed <- parseFile True day parse
   print $ part1 parsed
   mapM_ putStrLn $ part2 parsed
-  where Right parsed  = P.parse parse "(input)" input

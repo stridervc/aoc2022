@@ -2,7 +2,6 @@ module Main where
 
 import qualified Data.Map as M
 import System.Environment (getArgs)
-import System.Posix.Files (fileExist)
 
 import qualified Day01 (solve)
 import qualified Day02 (solve)
@@ -33,12 +32,9 @@ solutions = M.fromList
 solveSingle :: String -> IO ()
 solveSingle day = do
   putStrLn $ "--- Day " ++ day ++ " ---"
-  exist <- fileExist inputfile
-  if exist then case M.lookup day solutions of
-      Just solver -> readFile inputfile >>= solver >> putStrLn ""
+  case M.lookup day solutions of
+      Just solver -> solver day >> putStrLn ""
       Nothing     -> putStrLn "Not yet implemented"
-  else putStrLn "No input file"
-  where inputfile = concat ["./inputs/input", day, ".txt"]
 
 main :: IO ()
 main = do

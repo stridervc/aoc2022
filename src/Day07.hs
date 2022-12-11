@@ -5,6 +5,8 @@ module Day07
 import qualified Text.Parsec as P
 import Text.Parsec ((<|>))
 
+import Parsers (inputfile)
+
 import Data.List (find)
 
 type DirPath  = [String]    -- ^ head of list is deepest dir
@@ -106,7 +108,8 @@ part2 parsed = minimum $ filter (>= needed) sizes
         sizes   = directorySizes parsed
 
 solve :: String -> IO ()
-solve input = do
+solve day = do
+  input <- readFile $ inputfile day
+  let Right (_, parsed) = P.runParser (parse >> P.getState) ([], Directory "/" []) "(input)" input
   print $ part1 parsed
   print $ part2 parsed
-  where Right (_, parsed) = P.runParser (parse >> P.getState) ([], Directory "/" []) "(input)" input

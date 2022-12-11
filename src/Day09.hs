@@ -9,6 +9,7 @@ import Text.Parsec ((<|>))
 import Data.List (nub)
 import qualified Data.Set as S
 
+import Helpers
 import Parsers
 
 type Coord  = (Int, Int)
@@ -76,7 +77,7 @@ part2 parsed = S.size $ snd endRopeSet
   where endRopeSet = foldl (flip move) (ropeSetOfLength 10) parsed
 
 solve :: String -> IO ()
-solve input = do
+solve day = do
+  parsed <- parseFile True day parse
   print $ part1 parsed
   print $ part2 parsed
-  where Right parsed  = P.parse parse "(input)" input

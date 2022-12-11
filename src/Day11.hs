@@ -10,6 +10,7 @@ import qualified Data.Map.Strict as M
 
 import Data.List (sort)
 
+import Helpers
 import Parsers
 
 type Item           = Int
@@ -137,7 +138,7 @@ part2 ms = head counts * counts!!1
         counts  = reverse $ sort $ map snd $ M.toList $ fst rounds
 
 solve :: String -> IO ()
-solve input = do
+solve day = do
+  parsed <- parseFile True day parse
   print $ part1 parsed
   print $ part2 parsed
-  where Right parsed  = P.parse parse "(input)" input

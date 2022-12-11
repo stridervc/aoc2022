@@ -6,6 +6,7 @@ import qualified Text.Parsec as P
 import Text.Parsec.String (Parser)
 import Text.Parsec ((<|>))
 
+import Helpers
 import Parsers
 
 import Data.List (sort)
@@ -31,7 +32,7 @@ part2 :: Parsed -> Int
 part2 inputs = sum $ take 3 $ reverse $ sort $ map sum inputs
 
 solve :: String -> IO ()
-solve input = do
+solve day = do
+  parsed <- parseFile True day parse
   print $ part1 parsed
   print $ part2 parsed
-  where Right parsed  = P.parse parse "(input)" input

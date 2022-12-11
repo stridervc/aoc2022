@@ -9,6 +9,7 @@ import Text.Parsec ((<|>))
 import Data.List (transpose)
 import Data.Char (digitToInt)
 
+import Helpers
 import Parsers
 
 type Height = Int
@@ -72,7 +73,7 @@ part2 :: Forest -> Int
 part2 forest = maximum [ scenicScore forest (x,y) | x <- [0..maxX forest], y <- [0..maxY forest] ]
 
 solve :: String -> IO ()
-solve input = do
+solve day = do
+  parsed <- parseFile True day parse
   print $ part1 parsed
   print $ part2 parsed
-  where Right parsed  = P.parse parse "(input)" input

@@ -20,10 +20,7 @@ part2 :: Parsed -> String
 part2 parsed = "Not yet implemented"
 
 solve :: String -> IO ()
-solve input = do
-  print $ P.parse parse "(input)" input
-  {-
+solve day = do
+  parsed <- parseFile False day parse
   print $ part1 parsed
   print $ part2 parsed
-  where Right parsed  = P.parse parse "(input)" input
-  -}

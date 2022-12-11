@@ -6,6 +6,7 @@ import qualified Text.Parsec as P
 import Text.Parsec.String (Parser)
 import Text.Parsec ((<|>))
 
+import Helpers
 import Parsers
 
 data RPS  = Rock | Paper | Scissors deriving (Eq, Show)
@@ -69,7 +70,7 @@ part2 parsed = sum $ map (roundScore . convert) parsed
   where convert (c1, c2)  = (charToRPS c1, strategy (charToRPS c1) (charToWLD c2))
 
 solve :: String -> IO ()
-solve input = do
+solve day = do
+  parsed <- parseFile True day parse
   print $ part1 parsed
   print $ part2 parsed
-  where Right parsed  = P.parse parse "(input)" input

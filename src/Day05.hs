@@ -11,6 +11,7 @@ import Data.Maybe (catMaybes)
 
 import qualified Data.IntMap as IM
 
+import Helpers
 import Parsers
 
 type Crate    = Char
@@ -101,7 +102,7 @@ part2 (stacks, rules) = map (head . snd) $ IM.toList stacks'
   where stacks' = foldl (flip applyRule2) stacks rules
 
 solve :: String -> IO ()
-solve input = do
+solve day = do
+  parsed <- parseFile True day parse
   putStrLn $ part1 parsed
   putStrLn $ part2 parsed
-  where Right parsed  = P.parse parse "(input)" input

@@ -1,9 +1,27 @@
 module Parsers
-  ( parseInt
+  ( inputfile
+  , testfile
+  , parseFile
+  , parseInt
   ) where
 
 import qualified Text.Parsec as P
+import qualified Text.Parsec.String as SP
 import Text.Parsec.String (Parser)
+
+inputfile :: String -> FilePath
+inputfile day = concat [ "./inputs/input", day, ".txt" ]
+
+testfile :: String -> FilePath
+testfile day = concat [ "./inputs/test", day, ".txt" ]
+
+parseFile :: Bool -> String -> Parser a -> IO a
+parseFile real day parser = do
+  let filename  = if real then inputfile day else testfile day
+  parse <- SP.parseFromFile parser filename
+  case parse of
+    Left e        -> error $ show e
+    Right parsed  -> return parsed
 
 parseNegInt :: Integral a => Read a => Parser a
 parseNegInt = do

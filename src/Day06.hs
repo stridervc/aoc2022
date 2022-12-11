@@ -8,6 +8,7 @@ import Text.Parsec ((<|>))
 
 import Data.List (nub)
 
+import Helpers
 import Parsers
 
 type Parsed = String
@@ -29,7 +30,7 @@ part2 :: Parsed -> Int
 part2 = subroutine 14 0
 
 solve :: String -> IO ()
-solve input = do
+solve day = do
+  parsed <- parseFile True day parse
   print $ part1 parsed
   print $ part2 parsed
-  where Right parsed  = P.parse parse "(input)" input

@@ -6,6 +6,7 @@ import qualified Text.Parsec as P
 import Text.Parsec.String (Parser)
 import Text.Parsec ((<|>))
 
+import Helpers
 import Parsers
 
 type Assignment = (Int, Int)
@@ -52,7 +53,7 @@ part2 :: Parsed -> Int
 part2 parsed = length $ filter id $ map (uncurry overlaps) parsed
 
 solve :: String -> IO ()
-solve input = do
+solve day = do
+  parsed <- parseFile True day parse
   print $ part1 parsed
   print $ part2 parsed
-  where Right parsed  = P.parse parse "(input)" input
