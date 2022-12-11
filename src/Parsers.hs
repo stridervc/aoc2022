@@ -18,12 +18,12 @@ testfile day = concat [ "./inputs/test", day, ".txt" ]
 
 parseFile :: Bool -> String -> Parser a -> IO a
 parseFile real day parser = do
-  let filename  = if real then inputfile day else testfile day
-
   parse <- SP.parseFromFile parser filename
   case parse of
     Left e        -> error $ show e
     Right parsed  -> return parsed
+  where filename  | real      = inputfile day
+                  | otherwise = testfile day
 
 parseNegInt :: Integral a => Read a => Parser a
 parseNegInt = do
