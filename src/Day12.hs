@@ -11,7 +11,7 @@ import qualified Data.Set as S
 
 import Data.Char (ord)
 import Data.List (sortOn, nub)
-import Data.Maybe (fromJust)
+import Data.Maybe (fromJust, isNothing)
 import Control.Monad.State
 
 import Parsers
@@ -37,58 +37,30 @@ parse = do
   let maxy = length rows - 2
   return $ foldl (\p (coord, c) -> addChar coord c p) ((0,0),(0,0),mempty) [ ((x,y), (rows!!y)!!x) | x <- [0..maxx], y <- [0..maxy] ]
 
-dfs :: Start -> End -> HeightMap -> Visited -> Path -> Path
-dfs start@(sx, sy) end hmap visited path
-  | start == end  = path
-  | null paths    = path
-  | otherwise     = path <> [start] <> head paths
-  where Just height = M.lookup (sx, sy) hmap
-        neighbours  = [ (sx+dx, sy+dy) | dx <- [-1,0,1], dy <- [-1,0,1], dx /= 0 && dy /= 0 ]
-        options     = [ coord | coord <- neighbours, coord `M.member` hmap, coord `S.notMember` visited, fromJust (M.lookup coord hmap) <= height+1 ]
-        visited'    = S.insert start visited
-        paths       = sortOn length $ filter (not . null) $ map (\s -> dfs s end hmap visited' path) options
-
-bfs :: Start -> End -> HeightMap -> Visited -> [Coord] -> Path -> Path
-bfs start@(sx,sy) end hmap visited queue path
-  | null queue    = path
-  | null options  = path
-  | hq == end     = path <> [hq]
-  | otherwise     = bfs ho end hmap visited'' queue' (path <> [ho])
-  where hq          = head queue
-        Just height = M.lookup start hmap
-        visited'    = S.insert start visited
-        neighbours  = [ (sx+dx, sy+dy) | dx <- [-1,0,1], dy <- [-1,0,1], dx /= 0 && dy /= 0 ]
-        options     = [ coord | coord <- neighbours, coord `M.member` hmap, coord `S.notMember` visited, fromJust (M.lookup coord hmap) <= height+1 ]
-        ho          = head options
-        visited''   = S.insert ho visited'
-        queue'      = queue <> [ho]
+type Parents  = M.Map Coord Coord
 
 data SearchState = SearchState
-  { stateVisited  :: S.Set Coord  -- ^ Keep track of visited nodes
+  { stateExplored :: S.Set Coord  -- ^ Keep track of explored nodes
   , stateQueue    :: [Coord]      -- ^ FIFO queue of nodes to visit
-  , statePath     :: Path         -- ^ Keep track of found path so far
+  , stateParents  :: Parents      -- ^ Parent nodes of nodes, used to find path
   , stateHMap     :: HeightMap    -- ^ The heightmap we're searching through
   } deriving (Eq, Show)
 
-defaultSearchState :: HeightMap -> SearchState
-defaultSearchState = SearchState mempty mempty mempty
+defaultSearchState :: Start -> HeightMap -> SearchState
+defaultSearchState start = SearchState (S.singleton start) [start] mempty
 
--- | add to queue if not already visited
+-- | add to queue
 enqueue :: Coord -> State SearchState ()
 enqueue coord = do
   state   <- get
-  visited <- gets stateVisited
-  if coord `S.member` visited then
-    return ()
-  else
-    put $ state { stateQueue = stateQueue state <> [coord] }
+  put $ state { stateQueue = stateQueue state <> [coord] }
 
--- | mark as visited
-visit :: Coord -> State SearchState ()
-visit coord = do
-  state   <- get
-  visited <- gets stateVisited
-  put $ state { stateVisited = S.insert coord visited }
+-- | mark as explored
+explore :: Coord -> State SearchState ()
+explore coord = do
+  state     <- get
+  explored  <- gets stateExplored
+  put $ state { stateExplored = S.insert coord explored }
 
 pop :: State SearchState Coord
 pop = do
@@ -97,49 +69,63 @@ pop = do
   put $ state { stateQueue = tail queue }
   return $ head queue
 
--- | get list of neightbours that are valid and haven't been visited
+setParent :: Coord -> Coord -> State SearchState ()
+setParent node parent = do
+  state   <- get
+  parents <- gets stateParents
+  put $ state { stateParents = M.insert node parent parents }
+
+-- | get list of neighbours that are valid and haven't been explored
 validNeighbours :: Coord -> State SearchState [Coord]
 validNeighbours (x,y) = do
-  visited <- gets stateVisited
-  hmap    <- gets stateHMap
+  explored  <- gets stateExplored
+  hmap      <- gets stateHMap
+  let maxh  = fromJust (M.lookup (x,y) hmap) + 1
+
   return [ coord  | coord <- [(x-1,y), (x+1,y), (x,y-1), (x,y+1)]
                   , coord `M.member` hmap
-                  , coord `S.notMember` visited
+                  , coord `S.notMember` explored
+                  , fromJust (M.lookup coord hmap) <= maxh
                   ]
 
-addToPath :: Coord -> State SearchState ()
-addToPath coord = do
-  state <- get
-  path  <- gets statePath
-  put $ state { statePath = path <> [coord] }
+-- | bfs : breadth first search, keeping track of parents
+search :: End -> State SearchState Bool
+search end = do
+  explored  <- gets stateExplored
+  queue     <- gets stateQueue
 
-search :: Coord -> Coord -> State SearchState Bool
-search start end = do
-  visited <- gets stateVisited
-  queue   <- gets stateQueue
-  path    <- gets statePath
-
-  enqueue start
-  visit start
-  next <- pop
-  if next == end then do
-    addToPath next
-    return True
+  if null queue then
+    return False
   else do
-    neighbours <- validNeighbours start
-    mapM_ enqueue neighbours
-    search next end
+    node <- pop
+    if node == end then do
+      return True
+    else do
+      neighbours <- validNeighbours node
+      mapM_ enqueue neighbours
+      mapM_ explore neighbours
+      mapM_ (`setParent` node) neighbours
+      search end
 
---part1 :: Parsed -> Int
-part1 (start, end, hmap) = do
-  let state = execState (search start end) (defaultSearchState hmap)
-  statePath state
+getPath :: Coord -> SearchState -> [Coord] -> [Coord]
+getPath node state path
+  | isNothing parent  = []
+  | otherwise         = node : getPath (fromJust parent) state path
+  where parent  = M.lookup node $ stateParents state
 
-part2 :: Parsed -> String
-part2 parsed = "Not yet implemented"
+part1 :: Parsed -> Int
+part1 (start, end, hmap) = length $ getPath end state []
+  where state = execState (search end) (defaultSearchState start hmap)
+
+-- | Some starting points can never reach the end, their trips are length 0
+part2 :: Parsed -> Int
+part2 (_, end, hmap) = minimum $ filter (/=0) trips
+  where starts  = M.keys $ M.filter (==0) hmap
+        states  = map (\start -> execState (search end) (defaultSearchState start hmap)) starts
+        trips   = map (\state -> length $ getPath end state []) states
 
 solve :: String -> IO ()
 solve day = do
-  parsed <- parseFile False day parse
+  parsed <- parseFile True day parse
   print $ part1 parsed
   print $ part2 parsed
