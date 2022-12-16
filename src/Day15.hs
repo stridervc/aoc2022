@@ -6,6 +6,7 @@ import qualified Text.Parsec as P
 import Text.Parsec.String (Parser)
 import Text.Parsec ((<|>))
 
+import qualified Data.Set as S
 import qualified Data.Map.Strict as M
 
 import Parsers
@@ -17,6 +18,7 @@ data Sensor = Sensor
   } deriving (Eq, Show)
 
 type Tunnels  = M.Map Coord Char
+type Coverage = S.Set Coord
 type Parsed   = [Sensor]
 
 parseSensor :: Parser Sensor
@@ -50,21 +52,21 @@ tunnelsFromSensors = foldr addSensor mempty
 tunnelLookup :: Coord -> Tunnels -> Char
 tunnelLookup = M.findWithDefault '.'
 
-markCoverage :: Sensor -> Tunnels -> Tunnels
-markCoverage sensor tunnels = foldr mark tunnels [ (x,y)  | x <- [sx-distance..sx+distance]
-                                                          , y <- [sy-distance..sy+distance]
-                                                          , delta x sx + delta y sy <= distance
-                                                          ]
-  where mark coord tunnels  | tunnelLookup coord tunnels == '.' = M.insert coord '#' tunnels
-                            | otherwise                         = tunnels
+markCoverage :: Sensor -> Tunnels -> Coverage -> Coverage
+markCoverage sensor tunnels coverage = foldr mark coverage [ (x,y) | x <- [sx-distance..sx+distance]
+                                                                  , y <- [sy-distance..sy+distance]
+                                                                  , delta x sx + delta y sy <= distance
+                                                                  ]
+  where mark coord coverage | tunnelLookup coord tunnels == '.' = S.insert coord coverage
+                            | otherwise                         = coverage
         (sx, sy)            = sensorCoord sensor
         (bx, by)            = sensorBeacon sensor
         delta a b           | a < b     = b - a
                             | otherwise = a - b
         distance            = delta sx bx + delta sy by
 
-markCoverages :: [Sensor] -> Tunnels -> Tunnels
-markCoverages sensors tunnels = foldr markCoverage tunnels sensors
+markCoverages :: [Sensor] -> Tunnels -> Coverage -> Coverage
+markCoverages sensors tunnels coverage = foldr (`markCoverage` tunnels) coverage sensors
 
 printTunnels :: Tunnels -> IO ()
 printTunnels tunnels = mapM_ printLine [ miny..maxy ]
@@ -76,9 +78,8 @@ printTunnels tunnels = mapM_ printLine [ miny..maxy ]
 
 part1 :: Parsed -> IO ()
 part1 sensors = do
-  -- print $ length $ M.keys $  M.filterWithKey (\k a -> snd k == 2000000 && a == '#') tunnels
-  printTunnels tunnels
-  where tunnels = markCoverages sensors $ tunnelsFromSensors sensors
+  print $ S.size $ S.filter (\(x,y) -> y == 2000000) coverage
+  where coverage  = markCoverages sensors (tunnelsFromSensors sensors) mempty
 
 part2 :: Parsed -> IO ()
 part2 parsed = do
@@ -86,6 +87,6 @@ part2 parsed = do
 
 solve :: String -> IO ()
 solve day = do
-  parsed <- parseFile False day parse
+  parsed <- parseFile True day parse
   part1 parsed
   part2 parsed
