@@ -15,8 +15,8 @@ data PacketData = PacketInt Int | PacketList [PacketData] deriving (Eq, Show)
 instance Ord PacketData where
   compare (PacketInt a) (PacketInt b)   = compare a b
   compare (PacketList a) (PacketList b) = compare a b
-  compare (PacketInt a) (PacketList b)  = compare (PacketList [PacketInt a]) (PacketList b)
-  compare (PacketList a) (PacketInt b)  = compare (PacketList a) (PacketList [PacketInt b])
+  compare (PacketInt a) (PacketList b)  = compare [PacketInt a] b
+  compare (PacketList a) (PacketInt b)  = compare a [PacketInt b]
 
 type PacketPair = (PacketData, PacketData)
 type Parsed     = [PacketPair]
