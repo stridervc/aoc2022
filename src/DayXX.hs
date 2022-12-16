@@ -7,6 +7,7 @@ import Text.Parsec.String (Parser)
 import Text.Parsec ((<|>))
 
 import Parsers
+import Helpers
 
 type Parsed = String
 
