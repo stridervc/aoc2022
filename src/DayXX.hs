@@ -14,14 +14,16 @@ type Parsed = String
 parse :: Parser Parsed
 parse = P.many P.anyChar
 
-part1 :: Parsed -> String
-part1 parsed = "Not yet implemented"
+part1 :: Parsed -> IO ()
+part1 parsed = do
+  putStrLn "Not yet implemented"
 
-part2 :: Parsed -> String
-part2 parsed = "Not yet implemented"
+part2 :: Parsed -> IO ()
+part2 parsed = do
+  putStrLn "Not yet implemented"
 
 solve :: String -> IO ()
 solve day = do
   parsed <- parseFile False day parse
-  print $ part1 parsed
-  print $ part2 parsed
+  part1 parsed
+  part2 parsed
