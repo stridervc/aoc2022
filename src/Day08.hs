@@ -13,7 +13,6 @@ import Helpers
 import Parsers
 
 type Height = Int
-type Coord  = (Int, Int)
 type Forest = [[Height]]
 type Parsed = Forest
 

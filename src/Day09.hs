@@ -12,7 +12,6 @@ import qualified Data.Set as S
 import Helpers
 import Parsers
 
-type Coord  = (Int, Int)
 type Rope   = [Coord]       -- ^ Leading knot is at head of rope
 type Motion = (Char, Int)
 type Parsed = [Motion]

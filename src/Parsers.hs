@@ -3,6 +3,8 @@ module Parsers
   , testfile
   , parseFile
   , parseInt
+  , Coord
+  , parseCoord
   ) where
 
 import qualified Text.Parsec as P
@@ -38,3 +40,13 @@ parseInt = P.choice
     num <- P.many1 P.digit
     return $ read num
   ]
+
+type Coord = (Int, Int)
+
+parseCoord :: Parser Coord
+parseCoord = do
+  x <- parseInt
+  P.char ','
+  y <- parseInt
+  return (x,y)
+

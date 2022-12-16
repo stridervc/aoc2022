@@ -16,7 +16,6 @@ import Control.Monad.State
 
 import Parsers
 
-type Coord      = (Int, Int)
 type Start      = Coord
 type End        = Coord
 type HeightMap  = M.Map Coord Int -- ^ Trying a map instead of [[Int]]
