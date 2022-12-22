@@ -70,7 +70,9 @@ removeShape (x,y) shape = do
   put $ state { stateChamber = removed chamber }
   where maxx            = shapeWidth shape - 1
         maxy            = shapeHeight shape - 1
-        removed chamber = foldr (`M.insert` Air) chamber [ (x+dx, y+dy) | dx <- [0..maxx], dy <- [0..maxy] ]
+        shapestr        = shapeStrings shape
+        removed chamber = foldr (`M.insert` Air) chamber  [ (x+dx, y+dy) | dx <- [0..maxx], dy <- [0..maxy]
+                                                          , (shapestr!!dy)!!dx == '#' ]
 
 placeShape :: Coord -> RockShape -> State ChamberState ()
 placeShape (x, y) shape = do
@@ -184,7 +186,6 @@ printChamber chamber = mapM_ putLine [miny..maxy]
         tileChar Air  = '.'
         tileChar _    = '#'
 
--- 2984 too low
 part1 :: Parsed -> IO ()
 part1 parsed = do
   printChamber $ stateChamber state
@@ -199,6 +200,6 @@ part2 parsed = do
 
 solve :: String -> IO ()
 solve day = do
-  parsed <- parseFile False day parse
+  parsed <- parseFile True day parse
   part1 parsed
   part2 parsed
