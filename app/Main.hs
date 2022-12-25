@@ -19,6 +19,7 @@ import qualified Day13 (solve)
 import qualified Day14 (solve)
 import qualified Day15 (solve)
 import qualified Day17 (solve)
+import qualified Day18 (solve)
 
 solutions = M.fromList
   [ ("01", Day01.solve)
@@ -37,6 +38,7 @@ solutions = M.fromList
   , ("14", Day14.solve)
   , ("15", Day15.solve)
   , ("17", Day17.solve)
+  , ("18", Day18.solve)
   ]
 
 solveSingle :: String -> IO ()
@@ -51,5 +53,5 @@ main = do
   args <- getArgs
   if null args
     -- then mapM_ solveSingle $ M.keys solutions
-    then solveSingle "17"
+    then solveSingle "18"
     else mapM_ solveSingle args
